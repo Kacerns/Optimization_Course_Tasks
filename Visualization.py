@@ -10,8 +10,6 @@ def f(x):
 
 x = np.linspace(0, 2, 1000)
 
-print(x)
-
 plt.plot(x, f(x), color = 'red')
 
 plt.show()
