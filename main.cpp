@@ -4,6 +4,7 @@
 #include<cmath>
 #include<vector>
 #include<fstream>
+#include<sstream>
 
 using namespace std;
 
@@ -32,6 +33,12 @@ double f__(double x){
 }
 // One Dimensional Optimisation Interval Division Method
 void OneDimensionalIntervalDivision(double l, double r){
+    //Data Output start
+    ofstream PrintOut("Division.txt");
+    ostringstream buffer;
+    //Data Output end
+
+
     double L;
     double xm = (l+r)/2;
     double epsilon = 1;
@@ -42,6 +49,8 @@ void OneDimensionalIntervalDivision(double l, double r){
 
 
     while(epsilon > 0.0001){
+        buffer<<l<<" "<<r<<endl;
+
         L = r-l;
         xm = (l+r)/2;
 
@@ -74,13 +83,21 @@ void OneDimensionalIntervalDivision(double l, double r){
     cout<<func_call_count<<endl;
     cout<<l<<endl;
     cout<<r<<endl;
+
+    PrintOut<<buffer.str();
+    PrintOut.close();
     func_call_count = 0;
 }
 
 // Golden Ratio Method
 void GoldenRatio(double l, double r){
-    int it_count = 0;
+    //Data Output start
+    ofstream PrintOut("Golden.txt");
+    ostringstream buffer;
+    //Data Output end
 
+
+    int it_count = 0;
     double L = r - l;
     double Ratio = 0.61803;
     double x1 = r - Ratio*L;
@@ -91,6 +108,7 @@ void GoldenRatio(double l, double r){
     double fx1 = f(x1);
 
     while(epsilon > 0.0001){
+        buffer<<l<<" "<<r<<endl;
         if(fx2<fx1){
             l = x1;
             L = r - l;
@@ -114,14 +132,23 @@ void GoldenRatio(double l, double r){
     cout<<func_call_count<<endl;
     cout<<l<<endl;
     cout<<r<<endl;
+
+    PrintOut<<buffer.str();
+    PrintOut.close();
     func_call_count = 0;
 }
 
 // Newtons Method
 void NewtonsMethod(double x){
+    //Data Output start
+    ofstream PrintOut("Newtons.txt");
+    ostringstream buffer;
+    //Data Output end
+
     double x0 = x+1;
     int it_count = 0;
     while(x0-x > 0.0001){
+        buffer<<x<<endl;
         x0 = x;
         x = x - f_(x)/f__(x);
         it_count++;
@@ -129,6 +156,10 @@ void NewtonsMethod(double x){
     cout<<it_count<<endl;
     cout<<func_call_count<<endl;
     cout<<x<<endl;
+
+    PrintOut<<buffer.str();
+    PrintOut.close();
+    func_call_count=0;
 }
 int main(int argc, char *argv[]){
     cout<<"Interval Division: "<<endl;
