@@ -31,12 +31,9 @@ double f__(double x){
     double b = 8;
     return (12*pow(x, 2)-4*a)/b;
 }
-// One Dimensional Optimisation Interval Division Method
 void OneDimensionalIntervalDivision(double l, double r){
-    //Data Output start
     ofstream PrintOut("Division.txt");
     ostringstream buffer;
-    //Data Output end
 
 
     double L;
@@ -89,12 +86,9 @@ void OneDimensionalIntervalDivision(double l, double r){
     func_call_count = 0;
 }
 
-// Golden Ratio Method
 void GoldenRatio(double l, double r){
-    //Data Output start
     ofstream PrintOut("Golden.txt");
     ostringstream buffer;
-    //Data Output end
 
 
     int it_count = 0;
@@ -138,12 +132,9 @@ void GoldenRatio(double l, double r){
     func_call_count = 0;
 }
 
-// Newtons Method
 void NewtonsMethod(double x){
-    //Data Output start
     ofstream PrintOut("Newtons.txt");
     ostringstream buffer;
-    //Data Output end
 
     double x0 = x+1;
     int it_count = 0;
