@@ -79,8 +79,8 @@ void OneDimensionalIntervalDivision(double l, double r){
         it_count++;
         epsilon = r-l;
     }
-    cout<<it_count<<endl;
-    cout<<func_call_count<<endl;
+    cout<<"Iteration Count: "<<it_count<<endl;
+    cout<<"Function Call Count: "<<func_call_count<<endl;
     cout<<l<<endl;
     cout<<r<<endl;
 
@@ -128,8 +128,8 @@ void GoldenRatio(double l, double r){
         it_count++;
         epsilon = r-l;
     }
-    cout<<it_count<<endl;
-    cout<<func_call_count<<endl;
+    cout<<"Iteration Count: "<<it_count<<endl;
+    cout<<"Function Call Count: "<<func_call_count<<endl;
     cout<<l<<endl;
     cout<<r<<endl;
 
@@ -153,8 +153,8 @@ void NewtonsMethod(double x){
         x = x - f_(x)/f__(x);
         it_count++;
     }
-    cout<<it_count<<endl;
-    cout<<func_call_count<<endl;
+    cout<<"Iteration Count: "<<it_count<<endl;
+    cout<<"Function Call Count: "<<func_call_count<<endl;
     cout<<x<<endl;
 
     PrintOut<<buffer.str();
