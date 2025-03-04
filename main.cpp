@@ -49,7 +49,7 @@ void OneDimensionalIntervalDivision(double l, double r){
 
 
     while(epsilon > 0.0001){
-        buffer<<l<<" "<<r<<endl;
+        buffer<<l<<endl<<r<<endl;
 
         L = r-l;
         xm = (l+r)/2;
@@ -108,7 +108,7 @@ void GoldenRatio(double l, double r){
     double fx1 = f(x1);
 
     while(epsilon > 0.0001){
-        buffer<<l<<" "<<r<<endl;
+        buffer<<l<<endl<<r<<endl;
         if(fx2<fx1){
             l = x1;
             L = r - l;
