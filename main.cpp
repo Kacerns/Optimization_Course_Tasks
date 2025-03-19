@@ -19,7 +19,18 @@ class Simplex{
     vector<pair<vector<double>, int>> vertices;
 
     Simplex(vector<double> X, double alpha){
-        
+        vertices.push_back({X, 0});
+        double delta1 = ((sqrt(X.size()+1) + X.size() - 1)/(X.size()*sqrt(2)))*alpha;
+        double delta2 = ((sqrt(X.size()+1) - 1)/(X.size()*sqrt(2)))*alpha;
+        for(int i = 0; i < X.size(); ++i){
+            vector<double> vertice;
+            vertice.reserve(2);
+            for(int j = 0; j < X.size(); ++i){
+                if(j==i){vertice.at(j) = X.at(j) + delta1;}
+                else{vertice.at(j) = X.at(j) + delta2;}
+            }
+            vertices.push_back({vertice, 0});
+        }
     }
 };
 
