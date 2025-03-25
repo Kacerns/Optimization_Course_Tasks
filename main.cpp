@@ -36,99 +36,83 @@ class Vertice{
     }
 };
 
-class Simplex{
+class Simplex {
     public:
-    vector<Vertice> vertices;
-    double alpha;
+        vector<Vertice> vertices;
+        double alpha = 0.0;
 
-    double expand = 2.0;
-    double shrink = 0.5;
-    double reverse = -0.5;
-       
-    int best_index = 0;
-
-    Simplex(vector<double> X, double a){
-        alpha = a;
-
-        vertices.push_back(Vertice(X));
-        double delta1 = ((sqrt(X.size()+1) + X.size() - 1)/(X.size()*sqrt(2)))*alpha;
-        double delta2 = ((sqrt(X.size()+1) - 1)/(X.size()*sqrt(2)))*alpha;
-        for(int i = 0; i < X.size(); ++i){
-            vector<double> Points{0,0};
-            for(int j = 0; j < X.size(); ++j){
-                if(j==i){Points.at(j) = X.at(j) + delta1;}
-                else{Points.at(j) = X.at(j) + delta2;}
-            }
-            vertices.push_back(Vertice(Points));
-        }
-    }
-
-    int get_WorstPoint_index() {
-        int worst_index = 0;
-        for (int i = 0; i < vertices.size(); ++i) {
-            if (vertices.at(i).Value > vertices.at(worst_index).Value) {
-                worst_index = i;
+        double expand = 2.0;
+        double shrink = 0.5;
+        double reverse = -0.5;
+        
+        Simplex(vector<double> X, double a) {
+            alpha = a;
+            vertices.push_back(Vertice(X));
+            
+            double delta1 = ((sqrt(X.size() + 1) + X.size() - 1) / (X.size() * sqrt(2))) * alpha;
+            double delta2 = ((sqrt(X.size() + 1) - 1) / (X.size() * sqrt(2))) * alpha;
+            
+            for(size_t i = 0; i < X.size(); ++i) {
+                vector<double> Points(X.size());
+                for(size_t j = 0; j < X.size(); ++j) {
+                    if(j == i) {
+                        Points.at(j) = X.at(j) + delta1;
+                    } else {
+                        Points.at(j) = X.at(j) + delta2;
+                    }
+                }
+                vertices.push_back(Vertice(Points));
             }
         }
-        return worst_index;
-    }
+    
+        void sort_Ascending() {
+            sort(vertices.begin(), vertices.end(), [](const Vertice &a, const Vertice &b) {
+                return a.Value < b.Value;
+            });
+        }
+    
+        vector<double> centroid() {
+            vector<double> centroid(2);
 
-    void set_new_point(int worst_index){
-        Vertice Xdeformed;
+            for(int i = 0; i < 2; i++){
+                centroid.at(i) = vertices.at(0).Points.at(i) + vertices.at(1).Points.at(i);
+                centroid.at(i) = centroid.at(i)/2.0;
+            }
 
-        vector<double> midpoint {0.0,0.0};
-        int n = vertices.size();
+            return centroid;
+        }
+    
+        bool Exceeded_Lifetime() {
+            for(const auto& vertex : vertices) {
+                if(vertex.Lifetime > 100) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    
+        bool Stop() {
+            double max_diff = 0;
+            double temp_diff = 0;
+            for(size_t i = 0; i < vertices.size(); ++i) {
+                for(size_t j = i + 1; j < vertices.size(); ++j) {
+                    if(i != j){temp_diff = abs(vertices.at(i).Points.at(0) - vertices.at(j).Points.at(0)) + abs(vertices.at(i).Points.at(1) - vertices.at(j).Points.at(1)); temp_diff /= 2;}
+                    max_diff = max(max_diff, temp_diff);
+                }
+            }
+            return max_diff < 0.0004;
+        }
 
-        for(int i = 0; i < n; ++i){
-            if(i != worst_index){
-                midpoint.at(0)+=vertices.at(i).Points.at(0);
-                midpoint.at(1)+=vertices.at(i).Points.at(1);
+        void shrink_function(){
+            for(int i = 1; i<vertices.size(); i++){
+                vector<double> points_to_change = vertices.at(i).Points;
+                for(int j = 0; j<2; j++){
+                    points_to_change.at(j) = vertices.at(0).Points.at(j) + 0.5*(points_to_change.at(j) - vertices.at(0).Points.at(j));
+                }
+                vertices.at(i) = Vertice(points_to_change);
             }
         }
-        for(int i = 0; i < 2; i++){midpoint.at(i) = midpoint.at(i)/(n-1);}
-
-        vector<double> Point_xnew = vertices.at(worst_index).Points;
-        for(int i = 0; i < 2; i++){Point_xnew.at(i) =  midpoint.at(i) + (midpoint.at(i)-Point_xnew.at(i));}
-        Vertice Xnew(Point_xnew);
-
-        int second_best_index = 0;        
-        best_index = 0;
-
-        for(int i = 0; i<vertices.size(); ++i){
-            if(vertices.at(i).Value < vertices.at(best_index).Value){second_best_index = best_index; best_index = i;}
-        }
-
-        vector<double> Point_Deformed = vertices.at(worst_index).Points;
-        if(vertices.at(best_index).Value < Xnew.Value && Xnew.Value < vertices.at(second_best_index).Value){
-            Xdeformed = Xnew;
-        }else if(Xnew.Value < vertices.at(best_index).Value){
-            for(int i = 0; i < 2; i++){Point_Deformed.at(i) = midpoint.at(i) + expand * (midpoint.at(i) - Point_Deformed.at(i));}
-        }else if(Xnew.Value > vertices.at(worst_index).Value){
-            for(int i = 0; i < 2; i++){Point_Deformed.at(i) = midpoint.at(i) + shrink * (midpoint.at(i) - Point_Deformed.at(i));}
-        }else{
-            for(int i = 0; i < 2; i++){Point_Deformed.at(i) = midpoint.at(i) + reverse * (midpoint.at(i) - Point_Deformed.at(i));}
-        }
-
-        Xdeformed = Vertice(Point_Deformed);
-        for(auto it:vertices){it.Lifetime++;}
-        vertices.at(worst_index) = Xdeformed;
-    }
-
-    bool Exceeded_Lifetime(){
-        for(auto it:vertices){if(it.Lifetime>100){return true;}}
-        return false;
-    }
-
-    bool Stop(){
-        double max_diff = 0;
-        for (int i = 0; i < vertices.size(); ++i) {
-            for (int j = i + 1; j < vertices.size(); ++j) {
-                max_diff = max(max_diff, abs(vertices[i].Value - vertices[j].Value));
-            }
-        }
-        return max_diff < 0.000004;
-    }
-};
+    };
 
 class Gradient{
     public:
@@ -246,21 +230,55 @@ void fast_descent(vector<double> &X){
 
 void simplex_deformation(vector<double> X){
     int iterations = 0;
-    Simplex triangle(X,1);
-    while(!triangle.Stop()){
-        cout<<triangle.vertices.at(0).Points.at(0)<<" "<<triangle.vertices.at(0).Points.at(1)<<endl;
-        cout<<triangle.vertices.at(1).Points.at(0)<<" "<<triangle.vertices.at(1).Points.at(1)<<endl;
-        cout<<triangle.vertices.at(2).Points.at(0)<<" "<<triangle.vertices.at(2).Points.at(1)<<endl;
-        int worst_point = triangle.get_WorstPoint_index();
-        triangle.set_new_point(worst_point);
-        if(triangle.Exceeded_Lifetime()){
-            triangle = Simplex(triangle.vertices.at(triangle.best_index).Points, triangle.alpha*0.5);
+    Simplex triangle(X,0.4);
+    while(true){
+        triangle.sort_Ascending();
+
+        if(triangle.Stop()){break;}
+
+        vector<double> centroid = triangle.centroid();
+        vector<double> reflection_point(2, 0.0);
+
+        for(int i = 0; i < 2; i++){
+            reflection_point.at(i) = centroid.at(i) + (centroid.at(i) - triangle.vertices.at(2).Points.at(i));
         }
-        iterations++;
+
+        Vertice Reflection(reflection_point);
+
+        if(triangle.vertices.at(0).Value <= Reflection.Value && Reflection.Value < triangle.vertices.at(1).Value){
+            triangle.vertices.at(2) = Reflection;
+        }else if(Reflection.Value < triangle.vertices.at(0).Value){
+            vector<double> expanded_point(2, 0.0);
+            for(int i = 0; i < 2; i++){
+                expanded_point.at(i) = centroid.at(i) + triangle.expand*(Reflection.Points.at(i)-centroid.at(i));
+            }
+            Vertice expanded(expanded_point);
+            if(expanded.Value < Reflection.Value){
+                triangle.vertices.at(2) = expanded;
+            }else{triangle.vertices.at(2) = Reflection;}
+        }else if(Reflection.Value < triangle.vertices.at(2).Value){
+            vector<double> contracted_point(2, 0.0);
+            for(int i = 0; i < 2; i++){
+                contracted_point.at(i) = centroid.at(i) + triangle.shrink*(Reflection.Points.at(i)-centroid.at(i));
+            }
+            Vertice contracted(contracted_point);
+            if(contracted.Value < Reflection.Value){
+                triangle.vertices.at(2) = contracted;
+            }else{triangle.shrink_function();}
+        }else{
+            vector<double> contracted_inside_point(2, 0.0);
+            for(int i = 0; i < 2; i++){
+                contracted_inside_point.at(i) = centroid.at(i) + triangle.shrink*(triangle.vertices.at(2).Points.at(i)-centroid.at(i));
+            }
+            Vertice contracted_inside(contracted_inside_point);
+            if(contracted_inside.Value < Reflection.Value){
+                triangle.vertices.at(2) = contracted_inside;
+            }else{triangle.shrink_function();}
+        }
+        for(auto it:triangle.vertices){it.Lifetime++;}
     }
     cout<<triangle.vertices.at(0).Points.at(0)<<" "<<triangle.vertices.at(0).Points.at(1)<<endl;
-    cout<<triangle.vertices.at(1).Points.at(0)<<" "<<triangle.vertices.at(1).Points.at(1)<<endl;
-    cout<<triangle.vertices.at(2).Points.at(0)<<" "<<triangle.vertices.at(2).Points.at(1)<<endl;
+    cout<<triangle.vertices.at(0).Value<<endl;
 }
 
 
@@ -270,7 +288,7 @@ int main(){
     // vector<double> smd {1,1};
     // fast_descent(smd);
 
-    vector<double> sma{1,1};
+    vector<double> sma{0,0};
     simplex_deformation(sma);
     return 0;
 }
