@@ -10,11 +10,13 @@
 
 using namespace std;
 
+int func_call_count = 0;
 double S1 = 100;
 double S2 = 100;
 double S3 = 1 - S1 - S2;
 
 double function(vector<double> X){
+    func_call_count++;
     return (-1.0/8.0) * X.at(0) * X.at(1) * (1-X.at(0)-X.at(1));
 }
 
@@ -125,6 +127,7 @@ class Gradient{
 
         double Calc_With_x1 = coefficient * x2 * (1 - 2*x1 - x2);
         double Calc_With_x2 = coefficient * (x1 - pow(x1, 2) - 2*x1*x2);
+        func_call_count +=2;
 
         Results.push_back(Calc_With_x1);
         Results.push_back(Calc_With_x2);
@@ -164,7 +167,7 @@ double GoldenRatio(double l, double r, vector<double> X){
     double fx2 = minimization_function(x2, X);
     
 
-    while(epsilon > 0.0001){
+    while(epsilon > 0.01){
         if(fx2<fx1){
             l = x1;
             L = r - l;
@@ -189,14 +192,14 @@ double GoldenRatio(double l, double r, vector<double> X){
     // func_call_count = 0;
 }
 
-void gradient_descent(vector<double> &X){
+void gradient_descent(vector<double> X){
     int iterations = 0;
+    cout<< "gradient descent with input: ("<<X.at(0)<<", "<<X.at(1)<<")"<<endl;
     while(abs(S1 - X.at(0)) > 0.000004 || abs(S2 - X.at(1)) > 0.000004){
         S1 = X.at(0);
         S2 = X.at(1);
         S3 = 1 - S1 - S2;
 
-        cout<<X.at(0)<<" "<<X.at(1)<<endl;
         Gradient f(X);
         double gamma = -3.5;
         f = f*gamma;
@@ -204,16 +207,20 @@ void gradient_descent(vector<double> &X){
         iterations++;
     }
     cout<<"Iterations: "<<iterations<<endl;
+    cout<<"Resulting Point: "<<X.at(0)<<" "<<X.at(1)<<endl;
+    cout<<"Function was called: "<<func_call_count<<" times"<<endl;
+    cout<<endl;
+    func_call_count = 0;
 }
 
-void fast_descent(vector<double> &X){
+void fast_descent(vector<double> X){
     int iterations = 0;
+    cout<< "Fast descent with input: ("<<X.at(0)<<", "<<X.at(1)<<")"<<endl;
     while(abs(S1 - X.at(0)) > 0.000004 || abs(S2 - X.at(1)) > 0.000004){
         S1 = X.at(0);
         S2 = X.at(1);
         S3 = 1 - S1 - S2;
 
-        cout<<X.at(0)<<" "<<X.at(1)<<endl;
         Gradient f(X);
         double grad_norm = sqrt(pow(f.Results.at(0), 2) + pow(f.Results.at(1), 2));
         double r = 1.0 / grad_norm;
@@ -226,12 +233,16 @@ void fast_descent(vector<double> &X){
         iterations++;
     }
     cout<<"Iterations: "<<iterations<<endl;
+    cout<<"Resulting Point: "<<X.at(0)<<" "<<X.at(1)<<endl;
+    cout<<"Function was called: "<<func_call_count<<" times"<<endl;
+    cout<<endl;
+    func_call_count = 0;
 }
 
 void simplex_deformation(vector<double> X){
     int iterations = 0;
-    Simplex triangle(X,0.4);
-    while(true){
+    Simplex triangle(X,0.2);
+    while(true && iterations < 1000){
         triangle.sort_Ascending();
 
         if(triangle.Stop()){break;}
@@ -276,19 +287,21 @@ void simplex_deformation(vector<double> X){
             }else{triangle.shrink_function();}
         }
         for(auto it:triangle.vertices){it.Lifetime++;}
+        iterations++;
     }
-    cout<<triangle.vertices.at(0).Points.at(0)<<" "<<triangle.vertices.at(0).Points.at(1)<<endl;
-    cout<<triangle.vertices.at(0).Value<<endl;
+    cout<< "Simplex with input: ("<<X.at(0)<<", "<<X.at(1)<<")"<<endl;
+    cout<<"Iterations: "<<iterations<<endl;
+    cout<<"Resulting Point: "<<triangle.vertices.at(0).Points.at(0)<<", "<<triangle.vertices.at(0).Points.at(1)<<endl;
+    cout<<"Function was called: "<<func_call_count<<" times"<<endl;
+    func_call_count = 0;
+    cout<<endl;
 }
 
 
 int main(){
-    // vector<double> smh {0.1,0.8};
-    // // gradient_descent(smh);
-    // vector<double> smd {1,1};
-    // fast_descent(smd);
-
-    vector<double> sma{0,0};
-    simplex_deformation(sma);
+    vector<double> smh {1,1};
+    gradient_descent(smh);
+    fast_descent(smh);
+    simplex_deformation(smh);
     return 0;
 }
