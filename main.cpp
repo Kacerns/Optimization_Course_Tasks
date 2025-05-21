@@ -88,7 +88,7 @@ public:
         }
     }
 
-    void solve() {
+    void calculate() {
         cout << "Pradine simplekso matrica:\n";
         printMatrix();
 
@@ -199,14 +199,10 @@ int main() {
         { 0, 0,  1,  1}
     };
     vector<double> constraintSolutions = {8, 10, 3};
-    vector<double> customSolutions = {8, 1, 8};
 
     Simplex solver(objective, constraints, constraintSolutions);
-    solver.solve();
+    solver.calculate();
     cout << "\n\n";
-
-    Simplex customsolver(objective, constraints, customSolutions);
-    customsolver.solve();
 
     return 0;
 }
